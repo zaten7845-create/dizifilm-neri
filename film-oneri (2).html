@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>İzmit Lisesi — Film Önerisi</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d0d0d;
+    color: #e0e0e0;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── HEADER ── */
+  .portal-header {
+    width: 100%;
+    background: #111;
+    border-bottom: 1px solid #222;
+    text-align: center;
+    padding: 14px 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #ccc;
+  }
+
+  /* ── SAYFA KAPSAYICI ── */
+  .page {
+    width: 100%;
+    max-width: 680px;
+    padding: 28px 16px 60px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .page.active { display: flex; }
+
+  /* ── KART ── */
+  .card {
+    width: 100%;
+    background: #161616;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 32px 28px;
+  }
+
+  .card-icon {
+    font-size: 2.2rem;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+
+  .card-sub {
+    font-size: 0.82rem;
+    text-align: center;
+    color: #666;
+    margin-bottom: 28px;
+  }
+
+  /* ── FORM ── */
+  .field { margin-bottom: 18px; }
+
+  .field label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #aaa;
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    width: 100%;
+    background: #0d0d0d;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    color: #e0e0e0;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 300;
+    padding: 13px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus { border-color: #555; }
+
+  .field input::placeholder,
+  .field textarea::placeholder { color: #444; }
+
+  .field textarea { resize: none; min-height: 80px; line-height: 1.6; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* ── BUTONLAR ── */
+  .btn {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+
+  .btn-primary { background: #fff; color: #000; }
+  .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+
+  .btn-secondary { background: #1e1e1e; color: #aaa; border: 1px solid #2a2a2a; }
+  .btn-secondary:hover { background: #222; color: #ccc; }
+
+  .err-msg {
+    font-size: 0.78rem;
+    color: #e05555;
+    text-align: center;
+    min-height: 16px;
+    margin-top: 4px;
+  }
+
+  /* ── LİSTE SAYFASI ── */
+  .list-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 0 2px;
+  }
+
+  .list-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #555;
+  }
+
+  .list-count {
+    font-size: 0.75rem;
+    color: #444;
+  }
+
+  .film-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .film-item {
+    background: #161616;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 16px 18px;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .film-item-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .film-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .film-badge {
+    background: #1e1e1e;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 3px 9px;
+    font-size: 0.7rem;
+    color: #666;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .film-neden {
+    font-size: 0.82rem;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .film-meta {
+    font-size: 0.73rem;
+    color: #3a3a3a;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: #444;
+    font-size: 0.85rem;
+    padding: 48px 0;
+  }
+
+  .empty-state .icon { font-size: 2rem; margin-bottom: 10px; }
+
+  .fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    transition: transform 0.15s, opacity 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .fab:hover { opacity: 0.9; }
+  .fab:active { transform: scale(0.95); }
+</style>
+</head>
+<body>
+
+<div class="portal-header">İzmit Lisesi Mobil Portal</div>
+
+<!-- SAYFA 1: FORM -->
+<div class="page active" id="pageForm">
+  <div class="card">
+    <div class="card-icon">🎬</div>
+    <div class="card-title">Film Önerisi</div>
+    <div class="card-sub">Bilgilerini gir ve öneri yap!</div>
+
+    <div class="field">
+      <label>Ad Soyad</label>
+      <input id="f-adsoyad" type="text" placeholder="Örnek: Ahmet Yılmaz">
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Sınıf</label>
+        <input id="f-sinif" type="text" placeholder="Örnek: 11">
+      </div>
+      <div class="field">
+        <label>Şube</label>
+        <input id="f-sube" type="text" placeholder="Örnek: B">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Film Adı</label>
+      <input id="f-film" type="text" placeholder="Örnek: Inception, Interstellar...">
+    </div>
+
+    <div class="field">
+      <label>Neden öneriyorsun? <span style="color:#3a3a3a">(İsteğe bağlı)</span></label>
+      <textarea id="f-neden" placeholder="Kısaca açıkla..."></textarea>
+    </div>
+
+    <div class="err-msg" id="formErr"></div>
+
+    <button class="btn btn-primary" onclick="gondер()" id="sendBtn">
+      Öneriyi Gönder ✅
+    </button>
+    <button class="btn btn-secondary" onclick="showPage('pageList')">
+      Önerileri Gör →
+    </button>
+  </div>
+</div>
+
+<!-- SAYFA 2: LİSTE -->
+<div class="page" id="pageList">
+  <div class="list-header">
+    <span class="list-title">Tüm Öneriler</span>
+    <span class="list-count" id="listCount">0 öneri</span>
+  </div>
+  <div class="film-list" id="filmList">
+    <div class="empty-state">
+      <div class="icon">🎞️</div>
+      Henüz öneri yok. İlk öneriyi sen yap!
+    </div>
+  </div>
+</div>
+
+<!-- FAB: Öneri ekle (liste sayfasındayken) -->
+<button class="fab" id="fab" style="display:none" onclick="showPage('pageForm')">
+  + Öneri Ekle
+</button>
+
+<script>
+// Öneriler storage'da saklanır
+const STORAGE_KEY = 'izmit_film_oneriler';
+
+function getOneriler() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function saveOneriler(list) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('fab').style.display = id === 'pageList' ? 'flex' : 'none';
+  if (id === 'pageList') renderList();
+}
+
+function gondер() {
+  const adsoyad = document.getElementById('f-adsoyad').value.trim();
+  const sinif   = document.getElementById('f-sinif').value.trim();
+  const sube    = document.getElementById('f-sube').value.trim();
+  const film    = document.getElementById('f-film').value.trim();
+  const neden   = document.getElementById('f-neden').value.trim();
+  const err     = document.getElementById('formErr');
+
+  if (!adsoyad || !sinif || !sube || !film) {
+    err.textContent = 'Lütfen zorunlu alanları doldurun.';
+    return;
+  }
+  err.textContent = '';
+
+  const liste = getOneriler();
+  liste.unshift({
+    id: Date.now(),
+    adsoyad, sinif, sube, film, neden,
+    tarih: new Date().toLocaleDateString('tr-TR')
+  });
+  saveOneriler(liste);
+
+  // Formu temizle
+  ['f-adsoyad','f-sinif','f-sube','f-film','f-neden'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+
+  // Başarı bildirimi
+  const btn = document.getElementById('sendBtn');
+  btn.textContent = '✓ Gönderildi!';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.innerHTML = 'Öneriyi Gönder ✅';
+    btn.disabled = false;
+  }, 2000);
+
+  showPage('pageList');
+}
+
+function renderList() {
+  const liste = getOneriler();
+  const container = document.getElementById('filmList');
+  const countEl   = document.getElementById('listCount');
+
+  countEl.textContent = `${liste.length} öneri`;
+
+  if (liste.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🎞️</div>
+        Henüz öneri yok. İlk öneriyi sen yap!
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  liste.forEach((o, i) => {
+    const el = document.createElement('div');
+    el.className = 'film-item';
+    el.style.animationDelay = `${i * 0.04}s`;
+    el.innerHTML = `
+      <div class="film-item-top">
+        <div class="film-name">🎬 ${escHtml(o.film)}</div>
+        <div class="film-badge">${escHtml(o.sinif)}/${escHtml(o.sube)}</div>
+      </div>
+      ${o.neden ? `<div class="film-neden">"${escHtml(o.neden)}"</div>` : ''}
+      <div class="film-meta">${escHtml(o.adsoyad)} · ${escHtml(o.tarih)}</div>
+    `;
+    container.appendChild(el);
+  });
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Enter ile gönder
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('pageForm').classList.contains('active')) {
+    const tag = document.activeElement.tagName;
+    if (tag !== 'TEXTAREA') gondер();
+  }
+});
+</script>
+</body>
+</html>
